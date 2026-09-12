@@ -16,7 +16,7 @@ This page lists every note the kitchen understands, in plain words a 5-year-old 
 **Method:** `GET`
 **Address:** `/`
 
-The phone asks: *"Are you running?"*
+The phone asks: _"Are you running?"_
 The kitchen answers: **"Yes, StudyMachan Backend is running!"**
 
 ---
@@ -25,16 +25,16 @@ The kitchen answers: **"Yes, StudyMachan Backend is running!"**
 
 **Method:** `POST`
 **Address:** `/auth/signup`
-**Process name:** *Make a new account*
+**Process name:** _Make a new account_
 
 What the phone sends:
 
-| What it sends | What it means |
-|---|---|
-| `email` | The person's email address |
-| `password` | A secret password (at least 8 letters/numbers) |
-| `full_name` | The person's name (optional) |
-| `role` | `student` or `tutor` |
+| What it sends | What it means                                  |
+| ------------- | ---------------------------------------------- |
+| `email`       | The person's email address                     |
+| `password`    | A secret password (at least 8 letters/numbers) |
+| `full_name`   | The person's name (optional)                   |
+| `role`        | `student` or `tutor`                           |
 
 What happens:
 
@@ -51,14 +51,14 @@ What the phone gets back: a message, the new account's ID, the email, and whethe
 
 **Method:** `POST`
 **Address:** `/auth/login`
-**Process name:** *Log in*
+**Process name:** _Log in_
 
 What the phone sends:
 
-| What it sends | What it means |
-|---|---|
-| `email` | The person's email address |
-| `password` | Their password |
+| What it sends | What it means              |
+| ------------- | -------------------------- |
+| `email`       | The person's email address |
+| `password`    | Their password             |
 
 What happens:
 
@@ -74,7 +74,7 @@ What the phone gets back (when success): a login key (`access_token`), the user'
 
 **Method:** `POST`
 **Address:** `/auth/logout`
-**Process name:** *Log out*
+**Process name:** _Log out_
 
 The kitchen forgets the session and says: **"Successfully logged out."**
 
@@ -83,8 +83,8 @@ The kitchen forgets the session and says: **"Successfully logged out."**
 ## Show me my details
 
 **Method:** `GET`
-**Address:** `/auth/users/me` *(needs login key)*
-**Process name:** *Who am I?*
+**Address:** `/auth/users/me` _(needs login key)_
+**Process name:** _Who am I?_
 
 The phone must send the login key in the header. The kitchen looks up the person and sends back:
 
@@ -101,8 +101,8 @@ If the key is fake or missing: error `401` → **"not allowed."**
 ## Change my details
 
 **Method:** `PUT`
-**Address:** `/auth/users/me` *(needs login key)*
-**Process name:** *Update my profile*
+**Address:** `/auth/users/me` _(needs login key)_
+**Process name:** _Update my profile_
 
 The phone sends new details (you can change the name or the role).
 
@@ -115,7 +115,7 @@ If the login key is bad: error `401`.
 
 **Method:** `POST`
 **Address:** `/auth/reset-password`
-**Process name:** *Reset password*
+**Process name:** _Reset password_
 
 The phone sends an email. The kitchen asks Supabase to mail that address a **"make a new password"** link.
 
@@ -127,8 +127,8 @@ The kitchen answers politely: **"If this email is registered, a password reset l
 ## Save a study material (study notes)
 
 **Method:** `POST`
-**Address:** `/study/materials` *(needs login key)*
-**Process name:** *Add study notes*
+**Address:** `/study/materials` _(needs login key)_
+**Process name:** _Add study notes_
 
 The phone sends: `title`, `description`, `subject`.
 
@@ -139,61 +139,238 @@ The kitchen saves the note and connects it to the logged-in user's ID.
 ## Show my study materials
 
 **Method:** `GET`
-**Address:** `/study/materials` *(needs login key)*
-**Process name:** *View my study notes*
+**Address:** `/study/materials` _(needs login key)_
+**Process name:** _View my study notes_
 
 The kitchen shows all study notes that belong to the logged-in user. Nobody sees someone else's notes.
 
 ---
 
-## Search for tutors
+## Make a new student profile
+
+**Method:** `POST`
+**Address:** `/students/` _(needs login key)_
+**Process name:** _Create student profile_
+
+What the phone sends:
+
+| What it sends          | What it means                                             | Required? |
+| ---------------------- | --------------------------------------------------------- | --------- |
+| `id`                   | The student's Supabase user ID (from login)               | Yes       |
+| `full_name`            | Student's full name (2–100 letters)                       | Yes       |
+| `username`             | Chosen display name (3–30 chars, letters/numbers/hyphens) | Yes       |
+| `email`                | Student's email address                                   | Yes       |
+| `date_of_birth`        | Birthday in YYYY-MM-DD format (age 5–100)                 | Yes       |
+| `gender`               | `Male`, `Female`, or `Other`                              | Yes       |
+| `address`              | Home address (5–250 chars)                                | Yes       |
+| `subjects_of_interest` | List of subjects they want to study                       | No        |
+| `grade_level`          | Grade or level (e.g. `O/L`, `A/L`, `Grade 10`)            | No        |
+| `district`             | District in Sri Lanka (e.g. `Colombo`)                    | No        |
+| `avatar_url`           | Link to profile photo (must start with https://)          | No        |
+
+Security rules:
+
+- You must be logged in.
+- The `id` in the payload must match **your own** login ID — you cannot create a profile for someone else.
+- If a student profile already exists for this account: error `409` → **"A student profile already exists."**
+
+What the phone gets back: the saved student profile.
+
+---
+
+## See a student's profile
+
+**Method:** `GET`
+**Address:** `/students/{student_id}` _(needs login key)_
+**Process name:** _View a student profile_
+
+The phone asks to see one student by their ID.
+
+Security rules:
+
+- You must be logged in.
+- You can **only** view your own student profile. If you ask to view another student's profile: error `403` → **"You are not allowed to access another student's profile."**
+
+If not found: error `404` → **"Student profile not found."**
+
+---
+
+## See my own student profile
+
+**Method:** `GET`
+**Address:** `/students/me/profile` _(needs login key)_
+**Process name:** _View my own student profile_
+
+The kitchen uses the login key to know who is asking, then sends back their own student profile.
+
+If no profile has been created yet: error `404` → **"Student profile not found. Please create your profile first."**
+
+---
+
+## Change my student profile
+
+**Method:** `PUT`
+**Address:** `/students/{student_id}` _(needs login key)_
+**Process name:** _Edit a student profile_
+
+What the phone sends (any fields you want to update):
+
+| What it sends          | What it means                | Required? |
+| ---------------------- | ---------------------------- | --------- |
+| `full_name`            | New full name                | No        |
+| `username`             | New display name             | No        |
+| `date_of_birth`        | New birthday (YYYY-MM-DD)    | No        |
+| `gender`               | `Male`, `Female`, or `Other` | No        |
+| `address`              | New home address             | No        |
+| `subjects_of_interest` | New list of subjects         | No        |
+| `grade_level`          | New grade or level           | No        |
+| `district`             | New district                 | No        |
+| `avatar_url`           | New photo link               | No        |
+
+Security rules:
+
+- You must be logged in.
+- You can **only** update your own student profile. If `student_id` is not yours: error `403` → **"You can only update your own student profile."**
+
+What the phone gets back: the updated student profile.
+
+---
+
+## Change my own student profile (shortcut)
+
+**Method:** `PUT`
+**Address:** `/students/me/profile` _(needs login key)_
+**Process name:** _Edit my own student profile_
+
+The phone sends any fields it wants to change. The kitchen looks up who is logged in and updates their profile safely.
+
+---
+
+## Student searches for tutors
+
+**Method:** `GET`
+**Address:** `/students/tutors/search` _(needs login key)_
+**Process name:** _Student finds a tutor_
+
+The phone can add these optional filters:
+
+| Filter      | What it does                                                 |
+| ----------- | ------------------------------------------------------------ |
+| `subject`   | Only show tutors who teach this subject                      |
+| `district`  | Only show tutors in this district                            |
+| `level`     | Grade level filter (planned — not yet applied on tutor rows) |
+| `max_price` | Only show tutors who charge at most this amount per hour     |
+
+What the phone gets back: a list of matching tutors plus a count.
+
+---
+
+## Student's bookings list
+
+**Method:** `GET`
+**Address:** `/students/bookings/list` _(needs login key)_
+**Process name:** _Student's lessons_
+
+The phone asks: _"What did this student book?"_ — Returns an empty list for now. Will be connected when the bookings table is wired up.
+
+---
+
+## Make a new tutor profile
+
+**Method:** `POST`
+**Address:** `/tutors/` _(needs login key)_
+**Process name:** _Create tutor profile_
+
+What the phone sends:
+
+| What it sends    | What it means                                              | Required? |
+| ---------------- | ---------------------------------------------------------- | --------- |
+| `id`             | The tutor's Supabase user ID (from login)                  | Yes       |
+| `full_name`      | Tutor's full name (2–100 letters)                          | Yes       |
+| `username`       | Chosen display name (3–30 chars)                           | Yes       |
+| `email`          | Tutor's email address                                      | Yes       |
+| `date_of_birth`  | Birthday in YYYY-MM-DD format (must be 18+)                | Yes       |
+| `gender`         | `Male`, `Female`, or `Other`                               | Yes       |
+| `address`        | Home address (5–250 chars)                                 | Yes       |
+| `bio`            | Short "about me" text (max 1000 chars)                     | No        |
+| `subjects`       | List of subjects the tutor teaches                         | No        |
+| `hourly_rate`    | Price per hour in LKR (0–100,000)                          | No        |
+| `qualifications` | Education / certificates (max 500 chars)                   | No        |
+| `education`      | University or school name (max 200 chars)                  | No        |
+| `specialty`      | Short specialty label shown on tutor cards (max 150 chars) | No        |
+| `district`       | District in Sri Lanka (max 50 chars)                       | No        |
+| `teaching_mode`  | `Online`, `Physical`, or `Both`                            | No        |
+| `avatar_url`     | Link to profile photo (must start with https://)           | No        |
+
+Security rules:
+
+- You must be logged in.
+- The `id` must match **your own** login ID.
+- If a tutor profile already exists for this account: error `409`.
+
+What the phone gets back: the saved tutor profile.
+
+---
+
+## Search / list tutors
 
 **Method:** `GET`
 **Address:** `/tutors/`
-**Process name:** *Find a tutor*
+**Process name:** _Find a tutor_
 
-The phone can add filters: `subject` and/or `max_price`.
-*(Remember: this part is still TODO — it returns an empty list for now.)*
+This is a public address — anyone can search without logging in.
+
+Optional filters:
+
+| Filter          | What it does                                    |
+| --------------- | ----------------------------------------------- |
+| `subject`       | Only show tutors who teach this subject         |
+| `district`      | Only show tutors in this district               |
+| `max_price`     | Only show tutors who charge at most this amount |
+| `verified_only` | `true` = only show verified tutors              |
+| `limit`         | How many to return (default 20, max 100)        |
+| `offset`        | How many to skip (for pagination, default 0)    |
+
+What the phone gets back: a list of tutors, a count, and the pagination values used.
 
 ---
 
-## Look at one tutor
+## See one tutor's profile
 
 **Method:** `GET`
 **Address:** `/tutors/{tutor_id}`
-**Process name:** *View a tutor*
+**Process name:** _View a tutor_
 
-The phone asks to see one tutor by their ID. *(Still TODO — returns an empty profile.)*
+This is a public address — anyone can view a tutor's details without logging in.
 
----
-
-## Update a tutor
-
-**Method:** `PUT`
-**Address:** `/tutors/{tutor_id}`
-**Process name:** *Edit a tutor*
-
-The phone sends new tutor details (bio, hourly rate, subjects, qualifications). *(Still echo-only — TODO.)*
+If not found: error `404` → **"Tutor profile not found."**
 
 ---
 
-## Update a tutor's location
-
-**Method:** `PUT`
-**Address:** `/tutors/location`
-**Process name:** *Move the tutor on the map*
-
-The phone sends `lat` and `lng` (map position). *(Still echo-only — TODO.)*
-
----
-
-## Find nearby tutors
+## See my own tutor profile
 
 **Method:** `GET`
-**Address:** `/tutors/nearby`
-**Process name:** *Tutors close to me*
+**Address:** `/tutors/me/profile` _(needs login key)_
+**Process name:** _View my own tutor profile_
 
-The phone sends: `lat`, `lng`, and optional `radius_km` (default 10 km). *(Still TODO — returns an empty list.)*
+The kitchen uses the login key to know who is asking, then sends back their own tutor profile.
+
+If no profile has been created yet: error `404`.
+
+---
+
+## Update my tutor profile
+
+**Method:** `PUT`
+**Address:** `/tutors/{tutor_id}` _(needs login key)_
+**Process name:** _Edit a tutor_
+
+The phone sends only the fields it wants to change:
+`bio`, `subjects`, `hourly_rate`, `qualifications`, `education`, `specialty`, `district`, `teaching_mode`, `avatar_url`.
+
+Security rule: You can only update **your own** profile. If `tutor_id` does not match your login ID: error `403`.
+
+What the phone gets back: the updated tutor profile.
 
 ---
 
@@ -201,9 +378,9 @@ The phone sends: `lat`, `lng`, and optional `radius_km` (default 10 km). *(Still
 
 **Method:** `POST`
 **Address:** `/bookings/`
-**Process name:** *Book a lesson*
+**Process name:** _Book a lesson_
 
-The phone sends: `tutor_id`, `session_date`, `subject`. *(Still echo-only — TODO.)*
+The phone sends: `tutor_id`, `session_date`, `subject`. _(Still echo-only — TODO.)_
 
 ---
 
@@ -211,9 +388,9 @@ The phone sends: `tutor_id`, `session_date`, `subject`. *(Still echo-only — TO
 
 **Method:** `GET`
 **Address:** `/bookings/`
-**Process name:** *View my bookings*
+**Process name:** _View my bookings_
 
-The phone asks: *"Which lessons did I book?"* *(Still TODO — returns an empty list.)*
+The phone asks: _"Which lessons did I book?"_ _(Still TODO — returns an empty list.)_
 
 ---
 
@@ -221,29 +398,9 @@ The phone asks: *"Which lessons did I book?"* *(Still TODO — returns an empty 
 
 **Method:** `PUT`
 **Address:** `/bookings/{booking_id}/status`
-**Process name:** *Accept, reject, or finish a booking*
+**Process name:** _Accept, reject, or finish a booking_
 
 The phone sends a status word: `accepted`, `rejected`, or `completed`.
-
----
-
-## Show a student's bookings
-
-**Method:** `GET`
-**Address:** `/students/bookings`
-**Process name:** *Student's lessons*
-
-The phone asks: *"What did this student book?"* *(Still TODO — returns an empty list.)*
-
----
-
-## Students search tutors
-
-**Method:** `GET`
-**Address:** `/students/tutors/search`
-**Process name:** *Student finds a tutor*
-
-The phone sends a `subject`. *(Still TODO — returns an empty list.)*
 
 ---
 
@@ -251,10 +408,10 @@ The phone sends a `subject`. *(Still TODO — returns an empty list.)*
 
 **Method:** `POST`
 **Address:** `/payments/initiate`
-**Process name:** *Start paying*
+**Process name:** _Start paying_
 
 The phone sends: `booking_id` and `amount`.
-The kitchen answers with the payment page address. *(Still echo-only — TODO.)*
+The kitchen answers with the payment page address. _(Still echo-only — TODO.)_
 
 ---
 
@@ -262,21 +419,22 @@ The kitchen answers with the payment page address. *(Still echo-only — TODO.)*
 
 **Method:** `POST`
 **Address:** `/payments/notify`
-**Process name:** *Payment status message*
+**Process name:** _Payment status message_
 
-The payment company sends us a message after a payment. *(Still echo-only — TODO.)*
+The payment company sends us a message after a payment. _(Still echo-only — TODO.)_
 
 ---
 
 ## Quick picture of error numbers
 
-| Number | Meaning | Simple words |
-|---|---|---|
-| `200` | OK | "All good!" |
-| `201` | Created | "Made it!" |
-| `400` | Bad request | "You asked for something I can't do." |
-| `401` | Unauthorized | "You are not logged in / key is wrong." |
-| `403` | Forbidden | "Not yet allowed (confirm your email first)." |
-| `404` | Not found | "I can't find that thing." |
-| `409` | Conflict | "That already exists." |
-| `500` | Server error | "The kitchen has a problem — try again later." |
+| Number | Meaning          | Simple words                                                     |
+| ------ | ---------------- | ---------------------------------------------------------------- |
+| `200`  | OK               | "All good!"                                                      |
+| `201`  | Created          | "Made it!"                                                       |
+| `400`  | Bad request      | "You asked for something I can't do."                            |
+| `401`  | Unauthorized     | "You are not logged in / key is wrong."                          |
+| `403`  | Forbidden        | "You are not allowed to do this."                                |
+| `404`  | Not found        | "I can't find that thing."                                       |
+| `409`  | Conflict         | "That already exists."                                           |
+| `422`  | Validation error | "The data you sent has a mistake (wrong format, missing field)." |
+| `500`  | Server error     | "The kitchen has a problem — try again later."                   |
