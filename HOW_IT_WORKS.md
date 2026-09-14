@@ -70,8 +70,9 @@ This file is the **front door** of the whole app. It handles everything about pe
 The web addresses here all start with `/auth`.
 
 - **`POST /auth/signup`** — **Make a new account.**
-  - Takes the email, password, name, and role (student or tutor).
-  - Asks Supabase to create the account safely.
+  - Takes the email, password, full name, username, role (student or tutor), birthday, gender, and address.
+  - Asks Supabase to create the user account safely.
+  - If the role is `student`, automatically inserts the student details (`full_name`, `username`, `email`, `date_of_birth`, `gender`, `address`) into the `students` table in Supabase.
   - If the email is already used, says **"this email already exists"**.
   - If the password is too easy, says **"password too weak"**.
   - Tells you if you must still click a link in your email (email confirmation).

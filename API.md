@@ -29,17 +29,22 @@ The kitchen answers: **"Yes, StudyMachan Backend is running!"**
 
 What the phone sends:
 
-| What it sends | What it means                                  |
-| ------------- | ---------------------------------------------- |
-| `email`       | The person's email address                     |
-| `password`    | A secret password (at least 8 letters/numbers) |
-| `full_name`   | The person's name (optional)                   |
-| `role`        | `student` or `tutor`                           |
+| What it sends                    | What it means                                | Database Column                     |
+| -------------------------------- | -------------------------------------------- | ----------------------------------- |
+| `email`                          | The person's email address                   | `email`                             |
+| `password`                       | Secret password (at least 8 letters/numbers) | Hidden in Supabase Auth             |
+| `full_name` or `fullName`        | Person's full name                           | `full_name` in `students` table     |
+| `username`                       | Person's display name                        | `username` in `students` table      |
+| `role`                           | `student` or `tutor`                         | Saved in user metadata              |
+| `date_of_birth` or `dateOfBirth` | Birthday (YYYY-MM-DD)                        | `date_of_birth` in `students` table |
+| `gender`                         | `Male`, `Female`, or `Other`                 | `gender` in `students` table        |
+| `address`                        | Home address                                 | `address` in `students` table       |
 
 What happens:
 
-- The kitchen writes the account's ID.
-- If a stronger email is needed, the kitchen says: **"you must click the link in your email first."** (`needs_email_confirmation = true`)
+- The kitchen creates the user account in Supabase Auth.
+- If `role` is `student`, the kitchen automatically saves `full_name`, `username`, `email`, `date_of_birth`, `gender`, and `address` into the `students` table in Supabase.
+- If a stronger email confirmation is needed, the kitchen says: **"you must click the link in your email first."** (`needs_email_confirmation = true`)
 - If the email is already used: error `409` → **"This email already exists."**
 - If the password is too easy: error `400` → **"Password is too weak."**
 
