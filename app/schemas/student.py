@@ -6,7 +6,7 @@
 
 import re  # A tool that helps us check if text matches a pattern (like a valid date).
 from datetime import date  # A tool that represents a calendar date (like 2005-04-15).
-from typing import List, Optional  # Words that mean "a list of things" and "can be empty".
+from typing import Any, List, Optional  # Words that mean "any type", "a list of things", and "can be empty".
 
 from pydantic import (  # A tool that checks and shapes data automatically.
     BaseModel,  # The parent class that turns a "box" into a real, usable Python object.
@@ -19,7 +19,23 @@ from pydantic import (  # A tool that checks and shapes data automatically.
 
 # The box for creating a new student profile (what the frontend sends us after sign-up).
 class StudentProfileCreate(BaseModel):
+    # Pre-validator to accept both snake_case and camelCase field names from frontend signup form.
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_frontend_fields(cls, data: Any) -> Any:
+        if isinstance(data, dict):  # If input data is a dictionary...
+            if "fullName" in data and "full_name" not in data:  # Map fullName from frontend to full_name column.
+                data["full_name"] = data["fullName"]
+            elif "name" in data and "full_name" not in data:  # Map name from frontend to full_name column.
+                data["full_name"] = data["name"]
+            if "dateOfBirth" in data and "date_of_birth" not in data:  # Map dateOfBirth from frontend to date_of_birth column.
+                data["date_of_birth"] = data["dateOfBirth"]
+            if "subjects" in data and "subjects_of_interest" not in data:  # Map subjects from frontend to subjects_of_interest column.
+                data["subjects_of_interest"] = data["subjects"]
+        return data  #Return the normalized dictionary.
+
     id: str = Field(  # The student's unique ID — comes from Supabase auth (same user).
+
         ...,  # The three dots mean this field is required (cannot be empty).
         min_length=1,  # The ID must have at least 1 character.
         description="Supabase auth user UUID",  # A short explanation of what this field is.
@@ -160,7 +176,23 @@ class StudentProfileResponse(BaseModel):
 
 # The box for updating an existing student's profile details (all fields are optional).
 class StudentProfileUpdate(BaseModel):
+    # Pre-validator to accept both snake_case and camelCase field names from frontend update form.
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_frontend_fields(cls, data: Any) -> Any:
+        if isinstance(data, dict):  # If input data is a dictionary...
+            if "fullName" in data and "full_name" not in data:  # Map fullName from frontend to full_name column.
+                data["full_name"] = data["fullName"]
+            elif "name" in data and "full_name" not in data:  # Map name from frontend to full_name column.
+                data["full_name"] = data["name"]
+            if "dateOfBirth" in data and "date_of_birth" not in data:  # Map dateOfBirth from frontend to date_of_birth column.
+                data["date_of_birth"] = data["dateOfBirth"]
+            if "subjects" in data and "subjects_of_interest" not in data:  # Map subjects from frontend to subjects_of_interest column.
+                data["subjects_of_interest"] = data["subjects"]
+        return data  # Return normalized dictionary.
+
     full_name: Optional[str] = Field(default=None, min_length=2, max_length=100)  # New full name to save (can be empty).
+
     username: Optional[str] = Field(default=None, min_length=3, max_length=30)  # New username to save (can be empty).
     date_of_birth: Optional[str] = Field(default=None)  # New date of birth to save (can be empty).
     gender: Optional[str] = Field(default=None)  # New gender to save (can be empty).
