@@ -72,7 +72,23 @@ def signup(payload: UserSignUp):
             detail="Account creation failed. Please try again.",  # Tell the app to try later.
         )
 
+    if payload.role == "student":  # If the new user signed up as a student...
+        try:  # Try to save the student details into the students database table.
+            student_row = {  # Prepare the data box to save into the students table.
+                "id": user.id,  # Use the user's new ID number.
+                "full_name": payload.full_name or payload.email.split("@")[0],  # Put full_name into full_name column.
+                "username": payload.username or payload.email.split("@")[0],  # Put username into username column.
+                "email": payload.email,  # Put email into email column.
+                "date_of_birth": payload.date_of_birth or "2000-01-01",  # Put date_of_birth into date_of_birth column.
+                "gender": payload.gender or "Other",  # Put gender into gender column.
+                "address": payload.address or "Not provided",  # Put address into address column.
+            }  # Finished preparing student data box.
+            supabase.table("students").upsert(student_row).execute()  # Save data into the students table in Supabase.
+        except Exception:  # If saving to the table fails...
+            pass  # ...keep going so user creation still succeeds.
+
     needs_confirmation = response.session is None  # If Supabase did NOT give a login key, the user must still click a link in their email.
+
     return SignupResponse(  # Send a friendly answer back to the app.
         message=(  # The text we show the user.
             "Account created. Please confirm your email address to sign in."  # Text for when an email confirmation is needed.
