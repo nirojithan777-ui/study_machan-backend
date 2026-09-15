@@ -281,3 +281,19 @@ A hidden file that holds secrets (never share it!):
 - `ENVIRONMENT` — says we are in the "development" (testing) stage.
 
 **Remember:** Never put `.env` secrets in the public repo. It is already in `.gitignore`.
+
+## The Supabase Helper Door — `.vscode/mcp.json`
+
+This small VS Code note tells the coding helper how to talk to this project's Supabase kitchen.
+
+- It connects to Supabase using the project's public reference.
+- It turns on notes, account, database, debugging, development, function, and branch helpers.
+- It does not contain a secret key.
+
+## The Helper Recipe Cards — `.agents/skills/`
+
+These recipe cards give coding helpers safer, clearer instructions for Supabase and PostgreSQL work.
+
+- `supabase` explains how to use Supabase tools.
+- `supabase-postgres-best-practices` explains how to make safe database changes.
+- `skills-lock.json` records where these recipe cards came from.
