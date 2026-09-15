@@ -40,7 +40,7 @@ class StudentProfileCreate(BaseModel):
         min_length=1,  # The ID must have at least 1 character.
         description="Supabase auth user UUID",  # A short explanation of what this field is.
     )
-    full_name: str = Field(  # The student's full name.
+    full_name: str = Field(  # The student's full_name.
         ...,  # Required.
         min_length=2,  # The name must have at least 2 letters.
         max_length=100,  # The name cannot be longer than 100 letters.
