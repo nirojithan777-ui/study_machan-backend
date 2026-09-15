@@ -46,7 +46,7 @@ class StudentProfileCreate(BaseModel):
         max_length=100,  # The name cannot be longer than 100 letters.
         description="Student's full name",  # A short explanation.
     )
-    username: str = Field(  # The student's chosen display name (like a nickname).
+    username: str = Field(  #The student's chosen display name (like a nickname).
         ...,  # Required.
         min_length=3,  # Username must have at least 3 characters.
         max_length=30,  # Username cannot be longer than 30 characters.
@@ -57,7 +57,7 @@ class StudentProfileCreate(BaseModel):
         ...,  # Required.
         description="Date of birth in YYYY-MM-DD format",  # A short explanation.
     )
-    gender: str = Field(  # The student's gender (Male, Female, or Other).
+    gender: str = Field(  # The student's gender (Male,Female, or Other).
         ...,  # Required.
         description="Gender: Male, Female, or Other",  # A short explanation.
     )
