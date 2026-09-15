@@ -1,0 +1,12 @@
+{
+  // Tell VS Code which MCP helpers this project can use.
+  "servers": {
+    // Give the Supabase helper a short name.
+    "supabase": {
+      // Use the web-based MCP connection.
+      "type": "http",
+      // Connect to this project's Supabase tools and features.
+      "url": "https://mcp.supabase.com/mcp?project_ref=ytjkyslehcfawkvpsunn&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching"
+    }
+  }
+}
